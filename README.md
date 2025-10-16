@@ -1,21 +1,22 @@
 # Dexter 🤖
 
-Dexter is an autonomous financial research agent that thinks, plans, and learns as it works. It performs analysis using task planning, self-reflection, and real-time market data. Think Claude Code, but built specifically for financial research.
+Dexter is an autonomous research agent that thinks, plans, and learns as it works. It performs analysis using task planning, self-reflection, and real-time web search. Think Claude Code, but built for intelligent research and information gathering.
 
 
 <img width="979" height="651" alt="Screenshot 2025-10-14 at 6 12 35 PM" src="https://github.com/user-attachments/assets/5a2859d4-53cf-4638-998a-15cef3c98038" />
 
 ## Overview
 
-Dexter takes complex financial questions and turns them into clear, step-by-step research plans. It runs those tasks using live market data, checks its own work, and refines the results until it has a confident, data-backed answer.  
+Dexter takes complex questions and turns them into clear, step-by-step research plans. It runs those tasks using web search, checks its own work, and refines the results until it has a confident, data-backed answer.  
 
-It’s not just another chatbot.  It’s an agent that plans ahead, verifies its progress, and keeps iterating until the job is done.
+It's not just another chatbot.  It's an agent that plans ahead, verifies its progress, and keeps iterating until the job is done.
 
 **Key Capabilities:**
+
 - **Intelligent Task Planning**: Automatically decomposes complex queries into structured research steps
-- **Autonomous Execution**: Selects and executes the right tools to gather financial data
+- **Autonomous Execution**: Selects and executes the right tools to gather information
 - **Self-Validation**: Checks its own work and iterates until tasks are complete
-- **Real-Time Financial Data**: Access to income statements, balance sheets, and cash flow statements
+- **Real-Time Web Search**: Search the internet for up-to-date information using Tavily API
 - **Safety Features**: Built-in loop detection and step limits to prevent runaway execution
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/virattt?style=social)](https://twitter.com/virattt)
@@ -26,8 +27,8 @@ It’s not just another chatbot.  It’s an agent that plans ahead, verifies its
 
 - Python 3.10 or higher
 - [uv](https://github.com/astral-sh/uv) package manager
-- OpenAI API key
-- Financial Datasets API key (get one at [financialdatasets.ai](https://financialdatasets.ai))
+- OpenAI API key (get one at [platform.openai.com](https://platform.openai.com))
+- Tavily API key (get one at [tavily.com](https://tavily.com))
 
 ### Installation
 
@@ -49,7 +50,7 @@ cp env.example .env
 
 # Edit .env and add your API keys
 # OPENAI_API_KEY=your-openai-api-key
-# FINANCIAL_DATASETS_API_KEY=your-financial-datasets-api-key
+# TAVILY_API_KEY=your-tavily-api-key
 ```
 
 ### Usage
@@ -62,16 +63,16 @@ uv run dexter-agent
 ### Example Queries
 
 Try asking Dexter questions like:
-- "What was Apple's revenue growth over the last 4 quarters?"
-- "Compare Microsoft and Google's operating margins for 2023"
-- "Analyze Tesla's cash flow trends over the past year"
-- "What is Amazon's debt-to-equity ratio based on recent financials?"
+- "What are the latest news about artificial intelligence?"
+- "Find recent articles about climate change"
+- "What is the current state of quantum computing?"
+- "Search for information about renewable energy trends"
 
 Dexter will automatically:
 1. Break down your question into research tasks
-2. Fetch the necessary financial data
-3. Perform calculations and analysis
-4. Provide a comprehensive, data-rich answer
+2. Search the web for relevant information
+3. Analyze and synthesize the findings
+4. Provide a comprehensive, well-researched answer
 
 ## Architecture
 
@@ -90,7 +91,7 @@ dexter/
 │   ├── dexter/
 │   │   ├── agent.py      # Main agent orchestration logic
 │   │   ├── model.py      # LLM interface
-│   │   ├── tools.py      # Financial data tools
+│   │   ├── tools.py      # Web search tools (Tavily)
 │   │   ├── prompts.py    # System prompts for each component
 │   │   ├── schemas.py    # Pydantic models
 │   │   ├── utils/        # Utility functions

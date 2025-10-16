@@ -29,7 +29,7 @@ def call_llm(
   if output_schema:
       runnable = llm.with_structured_output(output_schema)
   elif tools:
-      runnable = llm.bind_tools(tools)
+      runnable = llm.bind_tools(tools, parallel_tool_calls=False)
   
   chain = prompt_template | runnable
   return chain.invoke({"prompt": prompt})
