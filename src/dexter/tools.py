@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from pydantic import BaseModel, Field
 from tavily import TavilyClient
+import yfinance as yf
 
 ####################################
 # Tools
@@ -15,6 +16,9 @@ class WebSearchInput(BaseModel):
 
 class CalculatorInput(BaseModel):
     expression: str = Field(description="A mathematical expression to calculate. Examples: '435.15 - 349.07', '(100 / 50) * 2', '15.5 + 20.3'")
+
+class StockInfoInput(BaseModel):
+    ticker: str = Field(description="The stock ticker symbol. Examples: 'AAPL', 'GOOGL', 'MSFT', 'TSLA', '0700.HK'")
 
 @tool(args_schema=WebSearchInput)
 def search_web(query: str, max_results: int = 5) -> dict:
@@ -66,10 +70,47 @@ def current_date() -> str:
     now = datetime.now()
     return f"Current date: {now.strftime('%B %d, %Y')} (Year: {now.year}, Month: {now.month}, Day: {now.day})"
 
+@tool(args_schema=StockInfoInput)
+def get_stock_info(ticker: str) -> dict:
+    """
+    Gets comprehensive stock information from Yahoo Finance including current price, market data, and company details.
+    Useful for analyzing stocks, ETFs, and market indices. Supports global markets.
+    Returns current price, market cap, PE ratio, dividends, 52-week range, volume, and more.
+    """
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        
+        # Extract key information
+        result = {
+            "ticker": ticker.upper(),
+            "name": info.get("longName", info.get("shortName", "N/A")),
+            "current_price": info.get("currentPrice", info.get("regularMarketPrice", "N/A")),
+            "currency": info.get("currency", "N/A"),
+            "market_cap": info.get("marketCap", "N/A"),
+            "pe_ratio": info.get("trailingPE", "N/A"),
+            "forward_pe": info.get("forwardPE", "N/A"),
+            "dividend_yield": info.get("dividendYield", "N/A"),
+            "52_week_high": info.get("fiftyTwoWeekHigh", "N/A"),
+            "52_week_low": info.get("fiftyTwoWeekLow", "N/A"),
+            "50_day_avg": info.get("fiftyDayAverage", "N/A"),
+            "200_day_avg": info.get("twoHundredDayAverage", "N/A"),
+            "volume": info.get("volume", "N/A"),
+            "avg_volume": info.get("averageVolume", "N/A"),
+            "sector": info.get("sector", "N/A"),
+            "industry": info.get("industry", "N/A"),
+            "exchange": info.get("exchange", "N/A"),
+        }
+        
+        return result
+    except Exception as e:
+        return {"error": f"Failed to get stock info for {ticker}: {str(e)}"}
+
 TOOLS: List[Callable[..., any]] = [
     current_date,
     search_web,
     calculator,
+    get_stock_info,
 ]
 
 RISKY_TOOLS = {}  # guardrail: require confirmation
