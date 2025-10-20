@@ -1,4 +1,5 @@
 import argparse
+import os
 from dotenv import load_dotenv
 
 # Load environment variables BEFORE importing any dexter modules
@@ -33,6 +34,18 @@ def main():
     args = parser.parse_args()
     
     print_intro()
+    
+    # Show LangSmith status
+    if os.getenv("LANGSMITH_API_KEY"):
+        project = os.getenv("LANGSMITH_PROJECT", "dexter-default")
+        print(f"📊 LangSmith tracing enabled: Project '{project}'")
+        print(f"   View traces at: https://smith.langchain.com/o/default/projects/p/{project}\n")
+    
+    # Show Tavily search limit if configured
+    tavily_limit = os.getenv("TAVILY_MAX_SEARCHES_PER_SESSION")
+    if tavily_limit:
+        print(f"🔍 Tavily search limit: {tavily_limit} searches per session")
+        print(f"   (Useful for managing free tier quota)\n")
     
     # Choose agent implementation based on flag
     if args.use_graph:

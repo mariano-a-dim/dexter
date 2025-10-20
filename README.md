@@ -53,6 +53,14 @@ cp env.example .env
 # Edit .env and add your API keys
 # OPENAI_API_KEY=your-openai-api-key
 # TAVILY_API_KEY=your-tavily-api-key
+
+# Optional: Limit Tavily searches per session (useful for free tier)
+# TAVILY_MAX_SEARCHES_PER_SESSION=5
+
+# Optional: Enable LangSmith for observability (see LANGSMITH_GUIDE.md)
+# LANGSMITH_API_KEY=your-langsmith-api-key
+# LANGSMITH_PROJECT=dexter-project
+# LANGSMITH_TRACING=true
 ```
 
 ### Usage
@@ -94,22 +102,63 @@ Dexter uses a multi-agent architecture with specialized components:
 
 ## Project Structure
 
-```skaffolding
+```
 dexter/
 ├── src/
 │   ├── dexter/
-│   │   ├── agent.py        # LangChain chains implementation (default)
-│   │   ├── agent_graph.py  # LangGraph implementation (scalable)
-│   │   ├── model.py        # LLM interface
-│   │   ├── tools.py        # Tools
-│   │   ├── prompts.py      # System prompts for each Agent
-│   │   ├── schemas.py      # Pydantic models
-│   │   ├── utils/          # Utility functions
-│   │   └── cli.py          # CLI entry point (supports both versions)
-├── AGENT_COMPARISON.md     # Detailed comparison of both implementations
+│   │   ├── agent.py          # LangChain chains implementation (default)
+│   │   ├── agent_graph.py    # LangGraph implementation (scalable)
+│   │   ├── model.py          # LLM interface (with LangSmith support)
+│   │   ├── tools.py          # Tools
+│   │   ├── prompts.py        # System prompts for each Agent
+│   │   ├── schemas.py        # Pydantic models
+│   │   ├── utils/            # Utility functions
+│   │   └── cli.py            # CLI entry point (supports both versions)
+├── AGENT_COMPARISON.md       # Detailed comparison of both implementations
+├── LANGSMITH_GUIDE.md        # Guide for setting up observability
+├── TAVILY_LIMIT_GUIDE.md     # Guide for managing API quotas
 ├── pyproject.toml
 └── uv.lock
 ```
+
+## Observability with LangSmith (Optional)
+
+Dexter has built-in support for [LangSmith](https://smith.langchain.com/), LangChain's observability platform. LangSmith provides:
+
+- **Complete tracing**: See every step of agent execution
+- **Debugging**: Identify exactly where things go wrong  
+- **Performance monitoring**: Measure latency and token usage
+- **Cost tracking**: Monitor API costs per query
+
+To enable LangSmith:
+
+1. Get an API key at [smith.langchain.com](https://smith.langchain.com/)
+2. Add to your `.env` file:
+   ```bash
+   LANGSMITH_API_KEY=your-api-key
+   LANGSMITH_PROJECT=dexter-project
+   LANGSMITH_TRACING=true
+   ```
+3. Run Dexter normally - traces will appear automatically in LangSmith
+
+For detailed setup and usage, see [LANGSMITH_GUIDE.md](LANGSMITH_GUIDE.md)
+
+## Managing API Quotas (Tavily Free Tier)
+
+If you're using Tavily's free tier (1,000 searches/month), you can limit searches per session:
+
+```bash
+# In your .env file
+TAVILY_MAX_SEARCHES_PER_SESSION=5
+```
+
+This will:
+- Limit the agent to 5 Tavily searches per session
+- Show remaining searches in the CLI
+- Prevent exceeding your monthly quota
+- Allow other tools (calculator, stock_info) to work normally
+
+For more details, see [TAVILY_LIMIT_GUIDE.md](TAVILY_LIMIT_GUIDE.md)
 
 ## Configuration
 

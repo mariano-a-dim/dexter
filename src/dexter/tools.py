@@ -10,6 +10,41 @@ import yfinance as yf
 # Tools
 ####################################
 
+# Tavily search counter (persiste durante la sesión)
+_tavily_search_count = 0
+
+def _get_tavily_limit() -> int:
+    """Obtiene el límite de búsquedas desde variables de entorno."""
+    limit = os.getenv("TAVILY_MAX_SEARCHES_PER_SESSION")
+    if limit:
+        try:
+            return int(limit)
+        except ValueError:
+            pass
+    return None  # Sin límite por defecto
+
+def _check_tavily_limit() -> tuple[bool, str]:
+    """
+    Verifica si se puede hacer otra búsqueda.
+    Returns: (can_search, message)
+    """
+    global _tavily_search_count
+    limit = _get_tavily_limit()
+    
+    if limit is None:
+        return True, ""
+    
+    if _tavily_search_count >= limit:
+        return False, f"Límite de búsquedas alcanzado ({_tavily_search_count}/{limit}). Configura TAVILY_MAX_SEARCHES_PER_SESSION para cambiar el límite."
+    
+    remaining = limit - _tavily_search_count
+    return True, f"Búsquedas restantes: {remaining}/{limit}"
+
+def _increment_tavily_count():
+    """Incrementa el contador de búsquedas."""
+    global _tavily_search_count
+    _tavily_search_count += 1
+
 class WebSearchInput(BaseModel):
     query: str = Field(description="The search query to look up on the internet. Be specific and include relevant keywords for better results.")
     max_results: int = Field(default=5, description="Maximum number of search results to return. Default is 5.")
@@ -27,6 +62,11 @@ def search_web(query: str, max_results: int = 5) -> dict:
     Useful for finding recent news, articles, analysis, and general information about any topic.
     Returns a list of relevant web pages with titles, URLs, and content snippets.
     """
+    # Verificar límite de búsquedas
+    can_search, message = _check_tavily_limit()
+    if not can_search:
+        return {"error": message}
+    
     try:
         tavily_api_key = os.getenv("TAVILY_API_KEY")
         if not tavily_api_key:
@@ -38,6 +78,14 @@ def search_web(query: str, max_results: int = 5) -> dict:
             max_results=max_results,
             search_depth="basic"
         )
+        
+        # Incrementar contador después de búsqueda exitosa
+        _increment_tavily_count()
+        
+        # Agregar info del límite a la respuesta si está configurado
+        if message:
+            response["_search_limit_info"] = message
+        
         return response
     except Exception as e:
         return {"error": f"Search failed: {str(e)}"}
