@@ -2,7 +2,6 @@
 
 Dexter is an autonomous research agent that thinks, plans, and learns as it works. It performs analysis using task planning, self-reflection, and real-time web search. Think Claude Code, but built for intelligent research and information gathering.
 
-
 <img width="979" height="651" alt="Screenshot 2025-10-14 at 6 12 35 PM" src="https://github.com/user-attachments/assets/5a2859d4-53cf-4638-998a-15cef3c98038" />
 
 ## Overview
@@ -33,17 +32,20 @@ It's not just another chatbot.  It's an agent that plans ahead, verifies its pro
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/virattt/dexter.git
 cd dexter
 ```
 
 2. Install dependencies with uv:
+
 ```bash
 uv sync
 ```
 
 3. Set up your environment variables:
+
 ```bash
 # Copy the example environment file
 cp env.example .env
@@ -56,23 +58,30 @@ cp env.example .env
 ### Usage
 
 Run Dexter in interactive mode:
+
+**Default version (LangChain chains):**
+
 ```bash
 uv run dexter-agent
 ```
 
-### Example Queries
+**LangGraph version (better scalability and control flow):**
 
-Try asking Dexter questions like:
-- "What are the latest news about artificial intelligence?"
-- "Find recent articles about climate change"
-- "What is the current state of quantum computing?"
-- "Search for information about renewable energy trends"
+```bash
+uv run dexter-agent --use-graph
+```
 
-Dexter will automatically:
-1. Break down your question into research tasks
-2. Search the web for relevant information
-3. Analyze and synthesize the findings
-4. Provide a comprehensive, well-researched answer
+**With custom parameters:**
+
+```bash
+uv run dexter-agent --use-graph --max-steps 30 --max-steps-per-task 5
+```
+
+**Available flags:**
+
+- `--use-graph`: Use LangGraph-based implementation
+- `--max-steps`: Maximum number of total steps (default: 20)
+- `--max-steps-per-task`: Maximum iterations per task (default: 3)
 
 ## Architecture
 
@@ -85,33 +94,27 @@ Dexter uses a multi-agent architecture with specialized components:
 
 ## Project Structure
 
-```
+```skaffolding
 dexter/
 ├── src/
 │   ├── dexter/
-│   │   ├── agent.py      # Main agent orchestration logic
-│   │   ├── model.py      # LLM interface
-│   │   ├── tools.py      # Web search tools (Tavily)
-│   │   ├── prompts.py    # System prompts for each component
-│   │   ├── schemas.py    # Pydantic models
-│   │   ├── utils/        # Utility functions
-│   │   └── cli.py        # CLI entry point
+│   │   ├── agent.py        # LangChain chains implementation (default)
+│   │   ├── agent_graph.py  # LangGraph implementation (scalable)
+│   │   ├── model.py        # LLM interface
+│   │   ├── tools.py        # Tools
+│   │   ├── prompts.py      # System prompts for each Agent
+│   │   ├── schemas.py      # Pydantic models
+│   │   ├── utils/          # Utility functions
+│   │   └── cli.py          # CLI entry point (supports both versions)
+├── AGENT_COMPARISON.md     # Detailed comparison of both implementations
 ├── pyproject.toml
 └── uv.lock
 ```
 
 ## Configuration
 
-Dexter supports configuration via the `Agent` class initialization:
+Dexter supports configuration via command-line flags or programmatic initialization:
 
-```python
-from dexter.agent import Agent
-
-agent = Agent(
-    max_steps=20,              # Global safety limit
-    max_steps_per_task=5       # Per-task iteration limit
-)
-```
 
 ## How to Contribute
 
@@ -123,8 +126,6 @@ agent = Agent(
 
 **Important**: Please keep your pull requests small and focused.  This will make it easier to review and merge.
 
-
 ## License
 
 This project is licensed under the MIT License.
-
